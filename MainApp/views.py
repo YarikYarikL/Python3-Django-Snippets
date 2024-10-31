@@ -1,6 +1,9 @@
 from django.http import Http404
 from django.shortcuts import render, redirect
 from MainApp.models import Snippet
+from django.http import HttpResponse, HttpResponseNotFound
+from django.core.exceptions import ObjectDoesNotExist
+from MainApp.forms import SnippetForm
 
 def index_page(request):
     context = {'pagename': 'PythonBin'}
@@ -8,7 +11,11 @@ def index_page(request):
 
 
 def add_snippet_page(request):
-    context = {'pagename': 'Добавление нового сниппета'}
+    form = SnippetForm()
+    context = {
+        'form': form,
+        'pagename': 'Добавление нового сниппета'
+        }
     return render(request, 'pages/add_snippet.html', context)
 
 
@@ -18,3 +25,29 @@ def snippets_page(request):
                'snippets': snippets
                }
     return render(request, 'pages/view_snippets.html', context)
+
+
+def snippet_details(request, num):
+    try:
+        single_snippet = Snippet.objects.get(id=num)
+    except ObjectDoesNotExist:
+        context = {
+            "pagename": 'Просмотр сниппета',
+            "ErrorText":f'Сниппет с id {num} не существует.'
+        }
+        return render(request, "pages/error_page.html", context)
+    else:
+        single_snippet = Snippet.objects.get(id=num)
+        context = {
+            "pagename": 'Просмотр сниппета',
+            "single_snippet": single_snippet
+                   }
+        return render(request,'pages/snippet_details.html',context)
+
+def snippet_create(request):
+    if request.method == "POST":
+        form = SnippetForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect("SnippetsList")
+        return render(request, "pages/add_snippet.html", {"form": form})
