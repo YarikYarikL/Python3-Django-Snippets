@@ -11,12 +11,21 @@ def index_page(request):
 
 
 def add_snippet_page(request):
-    form = SnippetForm()
-    context = {
-        'form': form,
-        'pagename': 'Добавление нового сниппета'
-        }
-    return render(request, 'pages/add_snippet.html', context)
+    #создаем пустую форму при запросе методом GET
+    if request.method == "GET":
+        form = SnippetForm()
+        context = {
+            'form': form,
+            'pagename': 'Добавление нового сниппета'
+            }
+        return render(request, 'pages/add_snippet.html', context)
+    #если форма заполненаЁ то получаем данные из формы и создаем новый сниппет в БД
+    if request.method == "POST":
+        form = SnippetForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect("SnippetsList")
+        return render(request, "pages/add_snippet.html", {"form": form})
 
 
 def snippets_page(request):
@@ -44,10 +53,10 @@ def snippet_details(request, num):
                    }
         return render(request,'pages/snippet_details.html',context)
 
-def snippet_create(request):
-    if request.method == "POST":
-        form = SnippetForm(request.POST)
-        if form.is_valid():
-            form.save()
-            return redirect("SnippetsList")
-        return render(request, "pages/add_snippet.html", {"form": form})
+# def snippet_create(request):
+#     if request.method == "POST":
+#         form = SnippetForm(request.POST)
+#         if form.is_valid():
+#             form.save()
+#             return redirect("SnippetsList")
+#         return render(request, "pages/add_snippet.html", {"form": form})
