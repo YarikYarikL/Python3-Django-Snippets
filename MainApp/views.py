@@ -19,7 +19,7 @@ def add_snippet_page(request):
             'pagename': 'Добавление нового сниппета'
             }
         return render(request, 'pages/add_snippet.html', context)
-    #если форма заполненаЁ то получаем данные из формы и создаем новый сниппет в БД
+    #если форма заполнена, то получаем данные из формы и создаем новый сниппет в БД
     if request.method == "POST":
         form = SnippetForm(request.POST)
         if form.is_valid():
@@ -38,7 +38,7 @@ def snippets_page(request):
 
 def snippet_details(request, num):
     try:
-        single_snippet = Snippet.objects.get(id=num)
+        snippet = Snippet.objects.get(id=num)
     except ObjectDoesNotExist:
         context = {
             "pagename": 'Просмотр сниппета',
@@ -46,15 +46,39 @@ def snippet_details(request, num):
         }
         return render(request, "pages/error_page.html", context)
     else:
-        single_snippet = Snippet.objects.get(id=num)
+        snippet = Snippet.objects.get(id=num)
         context = {
             "pagename": 'Просмотр сниппета',
-            "single_snippet": single_snippet
+            "snippet": snippet
                    }
         return render(request,'pages/snippet_details.html',context)
 
 def snippet_edit(request, num):
-    pass
+    context ={
+        "pagename":"Редактирование сниппета"
+    }
+    try:
+        snippet = Snippet.objects.get(id=num)
+    except ObjectDoesNotExist:
+        return Http404
+    #хотим получить страницу с данными сниппета
+    if request.method == "GET":
+        context = {
+            'snippet': snippet,
+            'type': 'edit',
+            }
+        return render(request, 'pages/snippet_details.html', context)
+    #если форма заполнена, то получаем данные из формы и создаем новый сниппет в БД
+    if request.method == "POST":
+        data_form = request.POST
+        snippet.name = data_form["name"]
+        snippet.code = data_form["code"]
+        print(f'{data_form["creation_date"]=}')
+        # snippet.creation_date = data_form["creation_date"]
+        snippet.save()
+        return redirect("SnippetsList")    
+
+
 
 def snippet_delete(request, num):
     if request.method == "POST" or request.method == "GET":
