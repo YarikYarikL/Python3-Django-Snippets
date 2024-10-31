@@ -28,6 +28,7 @@
                         <th scope="col">Дата создания</th>
                         <th scope="col">Удалить просто</th>
                         <th scope="col">Удалить кнопкой</th>
+                        <th scope="col">Удалить иконкой</th>
                     </tr>
                     </thead>
                     <tbody>
@@ -42,6 +43,10 @@
                                     {% csrf_token %}
                                     <button type="submit" class="btn btn-danger">Delete</button>
                                 </form>
+                            </td>
+                            <td>
+                                <a href="{% url "SnippetDelete" snippet.id %}">
+                                    <i style="color:red" class="fa-solid fa-trash"></i></a>
                             </td>
                         </tr>
                     {% endfor %}
